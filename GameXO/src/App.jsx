@@ -1,45 +1,50 @@
-import { useState } from 'react';
-import { CORE_CONCEPTS, EXAMPLES } from './data'
-import Header from './components/Header/Header'
-import CoreConcept from './components/CoreConcept/CoreConcept';
-import TabButton from './components/TabButton/TabButton';
+import { useState } from "react"
+import GameBoard from "./components/GameBoard"
+import Player from "./components/Player"
+import Log from "./components/Log"
 
 function App() {
-  const [selectedTopic, setSelectedTopic] = useState('compoents')
-  function handleClick(name) {
-    setSelectedTopic(name)
+  const [gameTurns, setGameTurns] = useState([])
+  const [activePlayer, setActivePlayer] = useState('X')
+
+  function handleSelectSquare(rowIndex, colIndex) {
+    setActivePlayer((curActivePlayer) => curActivePlayer === 'X' ? 'O' : 'X')
+    setGameTurns(prevTurns => {
+      let currentPlayer = 'X'
+
+      if (prevTurns.length > 0 && prevTurns[0].player === 'X') {
+        currentPlayer = 'O'
+      }
+
+      const updatedTurns = [{ square: { row: rowIndex, col: colIndex }, player: currentPlayer }, ...prevTurns]
+
+      return updatedTurns;
+    })
   }
-  return ( 
-    <div>
-      <Header />
-      <main>
-        <section id='core-concepts'>
-          <h2>Core Concepts</h2>
-          <ul>
-            {CORE_CONCEPTS.map((_core, index) => <CoreConcept {...CORE_CONCEPTS[index]} />)}
-          </ul>
-        </section>
-        <section id='examples'>
-          <h2>Examples</h2>
-          <menu>
-            <TabButton label={'Compoents'} onSelect={() => handleClick('compoents')} />
-            <TabButton label={'Jsx'} onSelect={() => handleClick('jsx')} />
-            <TabButton label={'Props'} onSelect={() => handleClick('props')} />
-            <TabButton label={'State'} onSelect={() => handleClick('state')} />
-          </menu>
-          <div id="tab-content">
-            <h3>{EXAMPLES.selectedTopic.title}</h3>
-            <p>{EXAMPLES.selectedTopic.description}</p>
-            <pre>
-              <code>
-                {EXAMPLES.selectedTopic.code}
-              </code>
-            </pre>
-          </div>
-        </section>
-      </main>
-    </div>
-  );
+
+  return (
+    <main>
+      <div id="game-container">
+        <ol id="players" className="highlight-player">
+          <Player
+            initialName={"Player 1"}
+            symbol={'X'}
+            isActive={activePlayer === 'X'}
+          />
+          <Player
+            initialName={"Player 2"}
+            symbol={'O'}
+            isActive={activePlayer === 'O'}
+          />
+        </ol>
+        <GameBoard
+          onSelectSquare={handleSelectSquare}
+          turns={gameTurns}
+        />
+      </div>
+      <Log />
+    </main >
+  )
 }
 
-export default App;
+export default App
